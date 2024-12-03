@@ -1,84 +1,46 @@
-import { NextResponse } from 'next/server';
-import { exec } from 'child_process';
-import { writeFile } from 'fs/promises';
+import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 
-const execAsync = promisify(exec);
+export const config = {
+  api: {
+    bodyParser: false, // 禁用默认 body 解析器以便处理文件流
+  },
+};
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const formData = await request.formData();
-    const image = formData.get('image') as File;
-    
-    if (!image) {
-      return NextResponse.json(
-        { error: 'No image provided' },
-        { status: 400 }
-      );
+    const uploadDir = path.join(process.cwd(), 'public/uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // Create a temporary file path
-    const tempFilePath = path.join(process.cwd(), 'tmp', `${Date.now()}.jpg`);
-    
-    // Write the uploaded file to disk
-    const bytes = await image.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(tempFilePath, buffer);
+    const fileName = `${Date.now()}-uploaded.jpeg`;
+    const filePath = path.join(uploadDir, fileName);
 
-    // Execute the Python script
-    const { stdout, stderr } = await execAsync(
-      `python gpt/featureExtract.py "${tempFilePath}"`
-    );
+    const writableStream = fs.createWriteStream(filePath);
+    const reader = req.body?.getReader();
 
-    if (stderr) {
-      console.error('Python script error:', stderr);
+    if (!reader) {
+      return NextResponse.json({ error: 'No file found in request body' }, { status: 400 });
     }
 
-    // Log the raw output for debugging
-    console.log('Raw Python output:', stdout);
-
-    // Clean the output and parse JSON
-    const cleanedOutput = stdout.trim();
-    console.log('Cleaned output:', cleanedOutput);
-
-    try {
-      const features = JSON.parse(cleanedOutput);
-      
-      // Check if we got an error from Python
-      if (features.error) {
-        throw new Error(features.error);
-      }
-
-      // Validate the features structure
-      if (!features.features || !Array.isArray(features.features)) {
-        throw new Error('Invalid features format');
-      }
-
-      return NextResponse.json(features);
-    } catch (parseError) {
-      console.error('JSON Parse Error:', parseError);
-      console.error('Failed to parse:', cleanedOutput);
-      
-      // Return a more detailed error response
-      return NextResponse.json(
-        {
-          error: 'Failed to parse Python output',
-          details: parseError.message,
-          rawOutput: cleanedOutput
-        },
-        { status: 500 }
-      );
+    let done = false;
+    while (!done) {
+      const { value, done: streamDone } = await reader.read();
+      if (value) writableStream.write(value);
+      done = streamDone;
     }
 
+    writableStream.end();
+
+    // 返回文件路径供前端预览
+    return NextResponse.json({
+      success: true,
+      filePath: `/uploads/${fileName}`,
+    });
   } catch (error) {
-    console.error('Error processing image:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to process image',
-        details: error instanceof Error ? error.message : String(error)
-      },
-      { status: 500 }
-    );
+    console.error('File upload error:', error);
+    return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
   }
-} 
+}
