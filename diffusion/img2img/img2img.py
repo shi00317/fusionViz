@@ -10,13 +10,13 @@ img2img_pipe = img2img_pipe.to("mps")
 img2img_pipe.enable_attention_slicing()
 
 # Load and preprocess the input image
-input_image = Image.open("1.png").convert("RGB").resize((512, 512))
+input_image = Image.open("/Users/haoyishi/Projects/fusionViz/img_data/input/image2.jpg").convert("RGB").resize((512, 512))
 # input_image = Image.open("2.png").convert("RGB").resize((512, 512))
 
 # Generate new image from input image
 
 # prompt = "A fusion of this images, need to be show both logo in one image. where the first logo is in the middle and the second logo is on the bottom."
-prompt = "A fusion of this images, need to use both logo and create new image. where the first logo is in the middle and the second logo is on the bottom right. output should be no boundry and be realistic and both logo are same important."
+prompt = "change this to dark night and asian man with realistic photo style"
 # prompt = "turn him into a cyborg and be realistic"
 image = img2img_pipe(
     prompt=prompt,

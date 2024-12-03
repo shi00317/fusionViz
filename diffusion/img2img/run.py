@@ -7,7 +7,7 @@ pipe = StableDiffusionInstructPix2PixPipeline.from_pretrained(model_id, cache_di
 pipe.to("mps")
 pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
 # `image` is an RGB PIL.Image
-image = PIL.Image.open("test.png")
+image = PIL.Image.open("/Users/haoyishi/Projects/fusionViz/img_data/input/image2.jpg")
 pipe.enable_attention_slicing()
 
 images = pipe("turn him into cyborg", image=image).images
