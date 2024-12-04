@@ -30,65 +30,42 @@ const VisualBlendAI = () => {
     );
   };
 
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);     // 图片的文件对象
-  
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setUploadedImage(URL.createObjectURL(file)); // 预览
-      setUploadedFile(file);                      // 保存原始文件对象
+      setUploadedImage(URL.createObjectURL(file));
     }
   };
-  
-  const handleSubmit = async () => {
-    if (!uploadedFile) {
-      alert('Please select a file before uploading.');
-      return;
-    }
-  
-    const formData = new FormData();
-    formData.append('image', uploadedFile); // 确保传递的文件是 `File` 对象
-  
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-  
-      const data = await response.json();
-      console.log('Upload response:', data);
-    } catch (error) {
-      console.error('Upload error:', error);
-    }
-    console.log([...formData.entries()]);
-
-  };
-
 
   const handleExtractFeatures = async () => {
-    if (uploadedFile) {
-      const formData = new FormData();
-      formData.append('image', uploadedFile);
-
+    if (uploadedImage) {
       try {
-        const response = await fetch('/api/extract-features', {
+        const formData = new FormData();
+        const response = await fetch(uploadedImage);
+        const blob = await response.blob();
+        formData.append('image', blob, 'image.jpg');
+
+        const featureResponse = await fetch('/api/extract-features', {
           method: 'POST',
           body: formData,
         });
 
-        const data = await response.json();
+        const data = await featureResponse.json();
 
-        if (response.ok) {
-          alert('File uploaded successfully! Features extracted: ' + data.features.join(', '));
-        } else {
+        if (!featureResponse.ok) {
           throw new Error(data.error || 'Failed to extract features');
         }
+
+        if (!data.features || !Array.isArray(data.features)) {
+          console.error('Invalid response format:', data);
+          throw new Error('Invalid response format from server');
+        }
+
+        setBlendDescription(data.features.join(', '));
       } catch (error) {
         console.error('Error extracting features:', error);
-        alert('Failed to extract features');
+        alert('Failed to extract features: ' + (error instanceof Error ? error.message : String(error)));
       }
-    } else {
-      alert('Please upload an image first');
     }
   };
 
@@ -188,21 +165,6 @@ const VisualBlendAI = () => {
               </div>
             )}
           </div>
-          <div className="p-8">
-      <h1 className="text-2xl mb-4">Upload and Extract Features</h1>
-      <div className="space-y-4">
-        <div>
-          <input type="file" accept="image/*" onChange={handleImageUpload} />
-        </div>
-        {uploadedImage && <img src={uploadedImage} alt="Preview" className="w-1/2 h-auto" />}
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Upload
-        </button>
-      </div>
-    </div>
           {/* 描述输入 */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
