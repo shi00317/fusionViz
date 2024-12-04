@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { promisify } from 'util';
 
@@ -42,11 +42,11 @@ export async function POST(request: Request) {
 
     // The output image path (based on the Python script's naming convention)
     const outputPath = inputPath.replace('.jpg', '_new.png');
+    const filename = path.basename(outputPath);
 
     return NextResponse.json({ 
-      success: true,
-      resultPath: outputPath,
-      message: 'Image generated successfully'
+      imagePath: `/tmp/${filename}`,
+      success: true
     });
 
   } catch (error) {

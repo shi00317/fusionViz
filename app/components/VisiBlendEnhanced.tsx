@@ -11,7 +11,7 @@ const VisualBlendAI = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [blendDescription, setBlendDescription] = useState('');
   const [denoisingSteps, setDenoisingSteps] = useState(25);
-  const [guidanceRate, setGuidanceRate] = useState(0.7);
+  const [guidanceRate, setGuidanceRate] = useState(7.5);
 
   // 处理函数
   const handleFeatureToggle = (id: number) => {
@@ -114,12 +114,14 @@ const VisualBlendAI = () => {
 
       const result = await generateResponse.json();
       
-      // Store the original and generated image paths in localStorage
+      // Make sure we store both images in localStorage
       localStorage.setItem('originalImage', uploadedImage);
-      localStorage.setItem('generatedImage', result.resultPath);
+      localStorage.setItem('generatedImage', result.imagePath);
       
-      // Navigate to the generate page using the existing pattern
-      const resultId = 'generated-123';
+      // Generate a unique ID (you might want to get this from your API)
+      const resultId = Date.now().toString();
+      
+      // Navigate to the results page
       window.location.href = `/generate/${resultId}`;
 
     } catch (error) {
@@ -218,12 +220,12 @@ const VisualBlendAI = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Guidance Rate (Temperature)
+                Guidance Rate (0-20)
               </label>
               <input 
                 type="range" 
                 min="0" 
-                max="1" 
+                max="20" 
                 step="0.1"
                 value={guidanceRate}
                 onChange={(e) => setGuidanceRate(Number(e.target.value))}
