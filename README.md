@@ -14,7 +14,8 @@ node -v  # Should be v18.x.x or later
 Clone the repository
 git clone https://github.com/shi00317/fusionViz.git
 # Enter the project directory
-
+cd frontend
+cd visiblends-app
 
 # Install dependencies
 npm install
