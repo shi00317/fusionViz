@@ -12,6 +12,7 @@ const VisualBlendAI = () => {
   const [blendDescription, setBlendDescription] = useState('');
   const [denoisingSteps, setDenoisingSteps] = useState(25);
   const [guidanceRate, setGuidanceRate] = useState(7.5);
+  const [isLoading, setIsLoading] = useState(false); // Loading state
 
   // 处理函数
   const handleFeatureToggle = (id: number) => {
@@ -40,6 +41,7 @@ const VisualBlendAI = () => {
   const handleExtractFeatures = async () => {
     if (uploadedImage) {
       try {
+        setIsLoading(true);
         const formData = new FormData();
         const response = await fetch(uploadedImage);
         const blob = await response.blob();
@@ -65,6 +67,8 @@ const VisualBlendAI = () => {
       } catch (error) {
         console.error('Error extracting features:', error);
         alert('Failed to extract features: ' + (error instanceof Error ? error.message : String(error)));
+      } finally{
+        setIsLoading(false);
       }
     }
   };
@@ -76,6 +80,9 @@ const VisualBlendAI = () => {
     }
 
     try {
+      setIsLoading(true);
+
+      
       // Collect all text inputs to form the complete prompt
       const artStyle = document.querySelector('select')?.value || 'Photorealistic';
       
@@ -127,10 +134,24 @@ const VisualBlendAI = () => {
     } catch (error) {
       console.error('Generation error:', error);
       alert('Failed to generate image: ' + (error instanceof Error ? error.message : String(error)));
+    } finally{
+      setIsLoading(false);
     }
   };
 
   return (
+
+    <div className="min-h-screen bg-gray-50 p-6 relative">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center">
+            <div className="loader mb-4 border-4 border-t-purple-600 border-gray-300 rounded-full w-12 h-12 animate-spin"></div>
+            <p className="text-white text-lg">Processing...</p>
+          </div>
+        </div>
+      )}
+
     <div className="min-h-screen bg-gray-50 p-6">
       {/* 头部 */}
       <div className="text-center mb-8">
@@ -249,7 +270,11 @@ const VisualBlendAI = () => {
               <h3 className="font-medium">Extracted Features</h3>
               <button 
                 onClick={handleExtractFeatures}
-                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                className={`px-4 py-2 rounded-md ${
+                  !uploadedImage
+                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    : 'bg-purple-600 text-white hover:bg-purple-700'
+                }`}
                 disabled={!uploadedImage}
               >
                 Extract Features
@@ -281,6 +306,7 @@ const VisualBlendAI = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };
