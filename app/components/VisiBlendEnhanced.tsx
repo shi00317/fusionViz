@@ -203,36 +203,46 @@ const VisualBlendAI = () => {
           <div className="mb-4">
             <h2 className="text-xl font-bold">Advanced Settings</h2>
           </div>
-          {/* 滑块控制 */}
-          <div className="mb-6 space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Denoising Steps (1-50)
-              </label>
-              <input 
-                type="range" 
-                min="1" 
-                max="50" 
-                value={denoisingSteps}
-                onChange={(e) => setDenoisingSteps(Number(e.target.value))}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Guidance Rate (0-20)
-              </label>
-              <input 
-                type="range" 
-                min="0" 
-                max="20" 
-                step="0.1"
-                value={guidanceRate}
-                onChange={(e) => setGuidanceRate(Number(e.target.value))}
-                className="w-full"
-              />
-            </div>
-          </div>
+{/* 滑块控制 */}
+<div className="mb-6 space-y-6">
+  <div>
+    <div className="flex justify-between items-center mb-2">
+      <label className="text-sm font-medium text-gray-700">
+        Denoising Steps (1-50)
+      </label>
+      <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
+        {denoisingSteps}
+      </span>
+    </div>
+    <input 
+      type="range" 
+      min="1" 
+      max="50" 
+      value={denoisingSteps}
+      onChange={(e) => setDenoisingSteps(Number(e.target.value))}
+      className="w-full"
+    />
+  </div>
+  <div>
+    <div className="flex justify-between items-center mb-2">
+      <label className="text-sm font-medium text-gray-700">
+        Guidance Rate (0-20)
+      </label>
+      <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
+        {guidanceRate}
+      </span>
+    </div>
+    <input 
+      type="range" 
+      min="0" 
+      max="20" 
+      step="0.1"
+      value={guidanceRate}
+      onChange={(e) => setGuidanceRate(Number(e.target.value))}
+      className="w-full"
+    />
+  </div>
+</div>
           {/* 特征控制 */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
