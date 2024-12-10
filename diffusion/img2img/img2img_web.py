@@ -23,7 +23,7 @@ def input_preprocessing(path):
 def encode_image(image_path):
   with open(image_path, "rb") as image_file:
     return base64.b64encode(image_file.read()).decode('utf-8')  
-def main(img_path,prompt,steps,guidance):
+def main(img_path,user_input,steps,guidance):
     image = input_preprocessing(img_path)
     base64_image = encode_image(img_path)
 
@@ -37,7 +37,7 @@ def main(img_path,prompt,steps,guidance):
             "content": [
             {
                 "type": "text",
-                "text": f"{prompt}",
+                "text": f"{user_input}",
             },
             {
                 "type": "image_url",
