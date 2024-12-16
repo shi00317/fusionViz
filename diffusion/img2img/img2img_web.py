@@ -57,6 +57,7 @@ def main(img_path,user_input,steps,guidance):
     # Get the response content
     new_prompt = response.choices[0].message.content
     print(new_prompt)
+    # new_prompt = "Transform the UMN Gopher logo, which features a gopher wearing a long winter shirt, into a summer version. Change the long shirt into a short t-shirt, add stylish sunglasses, and give the gopher a relaxed, sunny vibe with vibrant colors to evoke a fun summer atmosphere."
     images = pipe(new_prompt, image=image, num_inference_steps=steps,guidance_scale=guidance, image_guidance_scale=1.1).images
     images[0].save(img_path[:-4]+"_new.png")
 

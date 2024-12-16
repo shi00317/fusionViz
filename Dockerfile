@@ -7,7 +7,7 @@ ENV NODE_VERSION=22.8.0
 
 RUN apt-get update && apt-get upgrade -y && apt-get install wget curl git vim tmux python3 python-is-python3 python3-pip -y
 
-RUN pip install openai Pillow torch diffusers
+RUN pip install openai Pillow torch diffusers accelerate
 
 WORKDIR /root
 RUN git clone https://github.com/Visual-Intelligence-UMN/ML-PANCMAN.git
